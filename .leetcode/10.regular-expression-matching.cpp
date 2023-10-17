@@ -6,28 +6,45 @@
 
 // @lc code=start
 #include <string>
+#include <vector>
 using namespace std;
 class Solution
 {
 public:
     bool isMatch(string s, string p)
     {
-        int i = s.size(), j = p.size();
-        bool dp[i + 1][j + 1];
+        int m = s.size(), n = p.size();
 
-        // Boundary condition
-        for (int k = 0; k <= i; k++)
-            dp[k][0] = false;
-        for (int k = 0; k <= j; k++)
-            dp[0][k] = false;
-        dp[0][0] = true;
-        if (p[0] == '.' || p[1] == '*')
-            dp[0][1] == true;
-        for (int k = 1; k <= j; k++)
+        auto matches = [&](int i, int j)
         {
-            if (p[0] == '.' && p[1] == '*')
-                dp[0][k] = true;
+            if (i == 0)
+                return false;
+
+            if (p[j - 1] == '.')
+                return true;
+
+            return s[i - 1] == p[j - 1];
+        };
+
+        vector<vector<int>> dp(m + 1, vector<int>(n + 1));
+        dp[0][0] = true;
+        for (int i = 0; i <= m; i++)
+        {
+            for (int j = 1; j <= n; j++)
+            {
+                if (p[j - 1] == '*')
+                {
+                    dp[i][j] |= dp[i][j - 2];
+                    if (matches(i, j - 1))
+                        dp[i][j] |= dp[i - 1][j];
+                }
+
+                else if (matches(i, j))
+                    dp[i][j] |= dp[i - 1][j - 1];
+            }
         }
+
+        return dp[m][n];
     }
 };
 // @lc code=end
